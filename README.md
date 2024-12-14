@@ -1,6 +1,7 @@
 # BCC Language Support / BCC 语言支持
 # 稍后开源
 
+# 关于VSCode扩展的信息（与本仓库关系不大）
 VSCode extension for the BCC programming language.
 BCC 编程语言的 VSCode 扩展。
 
