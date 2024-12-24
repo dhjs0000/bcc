@@ -1,0 +1,68 @@
+class Animal {
+    name = ""
+    age = 0
+    species = "unknown"
+    
+    def public init(self, name, age, species) {
+        self.name = name
+        self.age = age
+        self.species = species
+    }
+    
+    def public make_sound(self) {
+        print("Some generic sound")
+    }
+    
+    def public describe(self) {
+        print("This is a " + self.species + " named " + self.name)
+        print("It is " + str(self.age) + " years old")
+    }
+}
+
+class Dog {
+    name = ""
+    age = 0
+    breed = "unknown"
+    
+    def public init(self, name, age, breed) {
+        self.name = name
+        self.age = age
+        self.breed = breed
+    }
+    
+    def public bark(self) {
+        print("Woof! Woof!")
+    }
+    
+    def public describe(self) {
+        print("This is a " + self.breed + " dog named " + self.name)
+        print("It is " + str(self.age) + " years old")
+    }
+    
+    def public birthday(self) {
+        self.age = self.age + 1
+        print("Happy birthday, " + self.name + "!")
+        print("You are now " + str(self.age) + " years old")
+    }
+}
+
+// 创建一些动物实例
+cat = Animal()
+cat.init("Whiskers", 3, "cat")
+cat.describe()
+cat.make_sound()
+
+print("")  // 空行
+
+dog = Dog()
+dog.init("Buddy", 2, "Golden Retriever")
+dog.describe()
+dog.bark()
+print("Current age: " + str(dog.age))
+dog.birthday()
+
+print("")  // 空行
+
+// 直接打印实例
+print("Cat instance: " + str(cat))
+print("Dog instance: " + str(dog)) 

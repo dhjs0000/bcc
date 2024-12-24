@@ -1,0 +1,93 @@
+2024-12-24 22:32:35 - ERROR - ½âÊÍÆ÷´íÎó: Î´¶¨ÒåµÄ±äÁ¿: help
+2024-12-24 22:33:54 - ERROR - ½âÊÍÆ÷´íÎó: Î´¶¨ÒåµÄ±äÁ¿: cleat
+2024-12-24 22:33:57 - ERROR - ½âÎö´íÎó: for Óï¾äĞèÒªÀ¨ºÅ
+2024-12-24 22:34:27 - ERROR - ½âÎö´íÎó: ÎŞĞ§µÄ±í´ïÊ½: class
+2024-12-24 22:35:47 - INFO - ¿ªÊ¼Ö´ĞĞÎÄ¼ş: test.bcs
+2024-12-24 22:35:47 - ERROR - ½âÎö´íÎó: ÎŞĞ§µÄ±í´ïÊ½: =
+2024-12-24 22:35:47 - INFO - ÎÄ¼şÖ´ĞĞÍê³É£¬ºÄÊ±: 0.00\ufffd\ufffd\ufffd
+2024-12-24 22:37:13 - INFO - ¿ªÊ¼Ö´ĞĞÎÄ¼ş: test.bcs
+2024-12-24 22:37:13 - ERROR - ½âÎö´íÎó: È±ÉÙÓÒÀ¨ºÅ
+2024-12-24 22:37:13 - INFO - ÎÄ¼şÖ´ĞĞÍê³É£¬ºÄÊ±: 0.00\ufffd\ufffd\ufffd
+2024-12-24 22:38:36 - INFO - ¿ªÊ¼Ö´ĞĞÎÄ¼ş: test.bcs
+2024-12-24 22:38:36 - ERROR - Ö´ĞĞ¹ı³ÌÖĞ·¢Éú´íÎó: 'Interpreter' object has no attribute 'visit'
+Traceback (most recent call last):
+  File "E:\ÎÄµµ\±à³ÌÓïÑÔ\Gitc1\main.py", line 329, in run
+    interpreter.interpret(ast)
+  File "E:\ÎÄµµ\±à³ÌÓïÑÔ\Gitc1\src\interpreter.py", line 308, in interpret
+    self.interpret(statement)
+  File "E:\ÎÄµµ\±à³ÌÓïÑÔ\Gitc1\src\interpreter.py", line 473, in interpret
+    attributes[name] = self.visit(value_node)
+AttributeError: 'Interpreter' object has no attribute 'visit'
+2024-12-24 22:38:36 - INFO - ÎÄ¼şÖ´ĞĞÍê³É£¬ºÄÊ±: 0.01\ufffd\ufffd\ufffd
+2024-12-24 22:40:40 - INFO - ¿ªÊ¼Ö´ĞĞÎÄ¼ş: test.bcs
+2024-12-24 22:40:40 - ERROR - ½âÊÍÆ÷´íÎó: Î´¶¨ÒåµÄº¯Êı: Person
+2024-12-24 22:40:40 - INFO - ÎÄ¼şÖ´ĞĞÍê³É£¬ºÄÊ±: 0.01\ufffd\ufffd\ufffd
+2024-12-24 22:41:27 - INFO - ¿ªÊ¼Ö´ĞĞÎÄ¼ş: test.bcs
+2024-12-24 22:41:27 - ERROR - ½âÊÍÆ÷´íÎó: Î´¶¨ÒåµÄº¯Êı: Person
+2024-12-24 22:41:27 - INFO - ÎÄ¼şÖ´ĞĞÍê³É£¬ºÄÊ±: 0.01\ufffd\ufffd\ufffd
+2024-12-24 22:42:16 - INFO - ¿ªÊ¼Ö´ĞĞÎÄ¼ş: test.bcs
+2024-12-24 22:42:16 - DEBUG - Óï·¨·ÖÎöÍê³É
+2024-12-24 22:42:16 - DEBUG - ÕıÔÚ½âÊÍ½Úµã: <class 'list'>
+2024-12-24 22:42:16 - DEBUG - ÕıÔÚ½âÊÍ½Úµã: <class 'src.parser.ClassNode'>
+2024-12-24 22:42:16 - DEBUG - ¶¨ÒåÀà: Person
+2024-12-24 22:42:16 - DEBUG - ÕıÔÚ½âÊÍ½Úµã: <class 'src.parser.StringNode'>
+2024-12-24 22:42:16 - DEBUG - ÕıÔÚ½âÊÍ½Úµã: <class 'src.parser.NumberNode'>
+2024-12-24 22:42:16 - DEBUG - ÕıÔÚ½âÊÍ½Úµã: <class 'src.parser.AssignNode'>
+2024-12-24 22:42:16 - DEBUG - ´¦Àí¸³Öµ: p = Call(Person, [])
+2024-12-24 22:42:16 - DEBUG - ÕıÔÚ½âÊÍ½Úµã: <class 'src.parser.CallNode'>
+2024-12-24 22:42:16 - DEBUG - µ÷ÓÃº¯Êı: Person
+2024-12-24 22:42:16 - ERROR - ½âÊÍÆ÷´íÎó: Î´¶¨ÒåµÄº¯Êı: Person
+2024-12-24 22:42:16 - DEBUG - ¸ñÊ½»¯´íÎóĞÅÏ¢: Î´¶¨ÒåµÄº¯Êı: Person
+2024-12-24 22:42:16 - INFO - ÎÄ¼şÖ´ĞĞÍê³É£¬ºÄÊ±: 0.00\ufffd\ufffd\ufffd
+2024-12-24 22:42:51 - INFO - å¼€å§‹æ‰§è¡Œæ–‡ä»¶: test.bcs
+2024-12-24 22:42:51 - DEBUG - è¯­æ³•åˆ†æå®Œæˆ
+2024-12-24 22:42:51 - DEBUG - æ­£åœ¨è§£é‡ŠèŠ‚ç‚¹: <class 'list'>
+2024-12-24 22:42:51 - DEBUG - æ­£åœ¨è§£é‡ŠèŠ‚ç‚¹: <class 'src.parser.ClassNode'>
+2024-12-24 22:42:51 - DEBUG - å®šä¹‰ç±»: Person
+2024-12-24 22:42:51 - DEBUG - æ­£åœ¨è§£é‡ŠèŠ‚ç‚¹: <class 'src.parser.StringNode'>
+2024-12-24 22:42:51 - DEBUG - æ­£åœ¨è§£é‡ŠèŠ‚ç‚¹: <class 'src.parser.NumberNode'>
+2024-12-24 22:42:51 - DEBUG - æ­£åœ¨è§£é‡ŠèŠ‚ç‚¹: <class 'src.parser.AssignNode'>
+2024-12-24 22:42:51 - DEBUG - å¤„ç†èµ‹å€¼: p = Call(Person, [])
+2024-12-24 22:42:51 - DEBUG - æ­£åœ¨è§£é‡ŠèŠ‚ç‚¹: <class 'src.parser.CallNode'>
+2024-12-24 22:42:51 - DEBUG - è°ƒç”¨å‡½æ•°: Person
+2024-12-24 22:42:51 - ERROR - è§£é‡Šå™¨é”™è¯¯: æœªå®šä¹‰çš„å‡½æ•°: Person
+2024-12-24 22:42:51 - DEBUG - æ ¼å¼åŒ–é”™è¯¯ä¿¡æ¯: æœªå®šä¹‰çš„å‡½æ•°: Person
+2024-12-24 22:42:51 - INFO - æ–‡ä»¶æ‰§è¡Œå®Œæˆï¼Œè€—æ—¶: 0.00ç§’
+2024-12-24 22:43:42 - INFO - å¼€å§‹æ‰§è¡Œæ–‡ä»¶: test.bcs
+2024-12-24 22:43:42 - ERROR - è§£é‡Šå™¨é”™è¯¯: æœªå®šä¹‰çš„å‡½æ•°: Person
+2024-12-24 22:43:42 - INFO - æ–‡ä»¶æ‰§è¡Œå®Œæˆï¼Œè€—æ—¶: 0.00ç§’
+2024-12-24 22:44:29 - INFO - å¼€å§‹æ‰§è¡Œæ–‡ä»¶: test.bcs
+2024-12-24 22:44:29 - ERROR - æ‰§è¡Œè¿‡ç¨‹ä¸­å‘ç”Ÿé”™è¯¯: æ— æ³•è®¡ç®—è¡¨è¾¾å¼: DotAccess(self.name)
+Traceback (most recent call last):
+  File "E:\æ–‡æ¡£\ç¼–ç¨‹è¯­è¨€\Gitc1\main.py", line 346, in run
+    interpreter.interpret(ast)
+  File "E:\æ–‡æ¡£\ç¼–ç¨‹è¯­è¨€\Gitc1\src\interpreter.py", line 358, in interpret
+    self.interpret(statement)
+  File "E:\æ–‡æ¡£\ç¼–ç¨‹è¯­è¨€\Gitc1\src\interpreter.py", line 457, in interpret
+    return self.execute_function(method, [obj] + args)
+  File "E:\æ–‡æ¡£\ç¼–ç¨‹è¯­è¨€\Gitc1\src\interpreter.py", line 562, in execute_function
+    result = self.interpret(stmt)
+  File "E:\æ–‡æ¡£\ç¼–ç¨‹è¯­è¨€\Gitc1\src\interpreter.py", line 401, in interpret
+    result = self.interpret(node.expr)
+  File "E:\æ–‡æ¡£\ç¼–ç¨‹è¯­è¨€\Gitc1\src\interpreter.py", line 396, in interpret
+    return self.evaluate(node)
+  File "E:\æ–‡æ¡£\ç¼–ç¨‹è¯­è¨€\Gitc1\src\interpreter.py", line 277, in evaluate
+    right = self.evaluate(node.right)
+  File "E:\æ–‡æ¡£\ç¼–ç¨‹è¯­è¨€\Gitc1\src\interpreter.py", line 341, in evaluate
+    raise Exception(f"æ— æ³•è®¡ç®—è¡¨è¾¾å¼: {node}")
+Exception: æ— æ³•è®¡ç®—è¡¨è¾¾å¼: DotAccess(self.name)
+2024-12-24 22:44:29 - INFO - æ–‡ä»¶æ‰§è¡Œå®Œæˆï¼Œè€—æ—¶: 0.01ç§’
+2024-12-24 22:45:24 - INFO - å¼€å§‹æ‰§è¡Œæ–‡ä»¶: test.bcs
+2024-12-24 22:45:24 - INFO - æ–‡ä»¶æ‰§è¡Œå®Œæˆï¼Œè€—æ—¶: 0.00ç§’
+2024-12-24 22:47:46 - INFO - å¼€å§‹æ‰§è¡Œæ–‡ä»¶: test.bcs
+2024-12-24 22:47:46 - INFO - æ–‡ä»¶æ‰§è¡Œå®Œæˆï¼Œè€—æ—¶: 0.01ç§’
+2024-12-24 22:51:42 - INFO - å¼€å§‹æ‰§è¡Œæ–‡ä»¶: test.bcs
+2024-12-24 22:51:42 - INFO - æ–‡ä»¶æ‰§è¡Œå®Œæˆï¼Œè€—æ—¶: 0.00ç§’
+2024-12-24 22:51:55 - INFO - å¼€å§‹æ‰§è¡Œæ–‡ä»¶: test.bcs
+2024-12-24 22:51:55 - DEBUG - è¯­æ³•åˆ†æå®Œæˆ
+2024-12-24 22:51:55 - DEBUG - ä»£ç æ‰§è¡Œå®Œæˆ
+2024-12-24 22:51:55 - INFO - æ–‡ä»¶æ‰§è¡Œå®Œæˆï¼Œè€—æ—¶: 0.01ç§’
+2024-12-24 22:53:09 - INFO - å¼€å§‹æ‰§è¡Œæ–‡ä»¶: test.bcs
+2024-12-24 22:53:09 - DEBUG - è¯­æ³•åˆ†æå®Œæˆ
+2024-12-24 22:53:09 - DEBUG - ä»£ç æ‰§è¡Œå®Œæˆ
+2024-12-24 22:53:09 - INFO - æ–‡ä»¶æ‰§è¡Œå®Œæˆï¼Œè€—æ—¶: 0.01ç§’

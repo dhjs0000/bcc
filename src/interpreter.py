@@ -5,10 +5,11 @@ from .parser import (
     ForNode, FunctionNode, CallNode, ReturnNode, 
     CodeBlockNode, CodeBlockParamNode, ImportNode,
     Parser, ArrayAccessNode, DotAccessNode, NsReturnNode,
-    ExprNode, WhileNode
+    ExprNode, WhileNode, ClassNode
 )
 from .lexer import Lexer
 import json
+import logging
 
 class InterpreterError(Exception):
     """解释器错误，包含错误发生时的Token信息"""
@@ -56,33 +57,39 @@ class ModuleManager:
         self.loaded_files = set()
         self.lib_path = "./lib/bcc"
         self.parent_interpreter = parent_interpreter
+        self.debug = parent_interpreter.debug if parent_interpreter else False
         # 只有主解释器才加载配置
         if parent_interpreter is None:
             try:
                 self.load_config()
             except Exception as e:
-                print(f"警告: 加载基础库失败 - {str(e)}")
-                import traceback
-                print(traceback.format_exc())  # 添加这行来打印详细错误信息
+                if self.debug:
+                    print(f"警告: 加载基础库失败 - {str(e)}")
+                    import traceback
+                    print(traceback.format_exc())
         
     def load_config(self):
         """加载配置文件"""
         try:
             config_path = f"{self.lib_path}/config.json"
-            print(f"尝试加载配置文件: {config_path}")  # 添加调试信息
+            if self.debug:
+                print(f"尝试加载配置文件: {config_path}")
             
             with open(config_path, "r", encoding='utf-8') as f:
                 config = json.load(f)
                 self.lib_path = config.get("libPath", self.lib_path)
                 # 自动加载默认库
                 for module in config.get("autoload", []):
-                    print(f"自动加载模块: {module}")  # 添加调试信息
+                    if self.debug:
+                        print(f"自动加载模块: {module}")
                     self.load_module(module)
         except FileNotFoundError:
-            print(f"找不到配置文件: {config_path}")  # 添加调试信息
+            if self.debug:
+                print(f"找不到配置文件: {config_path}")
             pass
         except Exception as e:
-            print(f"加载配置文件时出错: {str(e)}")  # 添加调试信息
+            if self.debug:
+                print(f"加载配置文件时出错: {str(e)}")
             raise
 
     def load_module(self, filename):
@@ -94,18 +101,21 @@ class ModuleManager:
             else:
                 filepath = filename
                 
-            print(f"尝试加载模块: {filepath}")  # 添加调试信息
+            if self.debug:
+                print(f"尝试加载模块: {filepath}")
             
             # 检查是否已加载
             if filepath in self.loaded_files:
-                print(f"模块 {filepath} 已加载，直接返回")
+                if self.debug:
+                    print(f"模块 {filepath} 已加载，直接返回")
                 return self.modules[filepath]
                 
             # 使用 UTF-8 编码读取文件
             with open(filepath, 'r', encoding='utf-8') as f:
                 source = f.read()
                 
-            print(f"成功读取文件内容: {filepath}")  # 添加调试信息
+            if self.debug:
+                print(f"成功读取文件内容: {filepath}")
             
             lexer = Lexer(source)
             tokens = lexer.tokenize()
@@ -113,29 +123,74 @@ class ModuleManager:
             ast = parser.parse()
             
             # 创建新的解释器实例用于模块
-            module_interpreter = Interpreter(self)
+            module_interpreter = Interpreter(self, self.debug)
             module_interpreter.interpret(ast)
             
             self.modules[filepath] = module_interpreter
             self.loaded_files.add(filepath)
             
-            print(f"成功加载模块: {filepath}")  # 添加调试信息
+            if self.debug:
+                print(f"成功加载模块: {filepath}")
             return module_interpreter
             
         except FileNotFoundError:
-            print(f"找不到模块文件: {filepath}")  # 添加调试信息
+            if self.debug:
+                print(f"找不到模块文件: {filepath}")
             raise InterpreterError(f"找不到模块: {filename}", None)
         except Exception as e:
-            print(f"加载模块时出错: {str(e)}")  # 添加调试信息
-            import traceback
-            print(traceback.format_exc())
+            if self.debug:
+                print(f"加载模块时出错: {str(e)}")
+                import traceback
+                print(traceback.format_exc())
             raise
 
+class BCCClass:
+    """BCC 类的运行时表示"""
+    def __init__(self, name, methods, attributes):
+        self.name = name
+        self.methods = methods
+        self.attributes = attributes.copy()
+
+class BCCInstance:
+    """BCC 类的实例"""
+    def __init__(self, bcc_class):
+        self.bcc_class = bcc_class
+        self.attributes = bcc_class.attributes.copy()
+
+    def get_method(self, name):
+        """获取实例方法"""
+        if name in self.bcc_class.methods:
+            return self.bcc_class.methods[name]
+        raise InterpreterError(f"类 {self.bcc_class.name} 没有方法 {name}")
+
+    def get_attribute(self, name):
+        """获取实例属性"""
+        if name in self.attributes:
+            return self.attributes[name]
+        raise InterpreterError(f"实例没有属性 {name}")
+
+    def set_attribute(self, name, value):
+        """设置实例属性"""
+        self.attributes[name] = value
+
+    def __str__(self):
+        """返回实例的字符串表示"""
+        attrs = []
+        for name, value in self.attributes.items():
+            attrs.append(f"{name}={value}")
+        return f"{self.bcc_class.name}({', '.join(attrs)})"
+
+    def __repr__(self):
+        """返回实例的详细字符串表示"""
+        return self.__str__()
+
 class Interpreter:
-    def __init__(self, parent_module_manager=None):
+    def __init__(self, parent_module_manager=None, debug=False):
         # 存储变量的字典
         self.variables = {}
         self.functions = {}  # 存储函数定义
+        self.debug = debug  # 添加调试标志
+        
         # 如果有父模块管理器，使用它，否则创建新的
         if isinstance(parent_module_manager, ModuleManager):
             self.module_manager = parent_module_manager
@@ -146,7 +201,12 @@ class Interpreter:
         self.builtin_functions = {
             'len': self.builtin_len,
             'eval': self.builtin_eval,
-            # 可以添加其他内置函数...
+            'str': self.builtin_str,
+            'int': self.builtin_int,
+            'float': self.builtin_float,
+            'bool': self.builtin_bool,
+            'print': self.builtin_print,
+            'type': self.builtin_type,
         }
     
     def builtin_len(self, args):
@@ -177,6 +237,47 @@ class Interpreter:
             
         return self.evaluate(expr.expr)
     
+    def builtin_str(self, args):
+        """内置的 str 函数"""
+        if len(args) != 1:
+            raise InterpreterError("str() 函数需要一个参数")
+        return str(args[0])
+    
+    def builtin_int(self, args):
+        """内置的 int 函数"""
+        if len(args) != 1:
+            raise InterpreterError("int() 函数需要一个参数")
+        try:
+            return int(args[0])
+        except ValueError:
+            raise InterpreterError(f"无法将 {args[0]} 转换为整数")
+    
+    def builtin_float(self, args):
+        """内置的 float 函数"""
+        if len(args) != 1:
+            raise InterpreterError("float() 函数需要一个参数")
+        try:
+            return float(args[0])
+        except ValueError:
+            raise InterpreterError(f"无法将 {args[0]} 转换为浮点数")
+    
+    def builtin_bool(self, args):
+        """内置的 bool 函数"""
+        if len(args) != 1:
+            raise InterpreterError("bool() 函数需要一个参数")
+        return bool(args[0])
+    
+    def builtin_print(self, args):
+        """内置的 print 函数"""
+        print(*args)
+        return None
+    
+    def builtin_type(self, args):
+        """内置的 type 函数"""
+        if len(args) != 1:
+            raise InterpreterError("type() 函数需要一个参数")
+        return type(args[0]).__name__
+    
     def evaluate(self, node):
         """计算表达式的值"""
         if isinstance(node, NumberNode):
@@ -184,17 +285,14 @@ class Interpreter:
         
         if isinstance(node, StringNode):
             return node.value
-        
+            
         if isinstance(node, ExprNode):
-            return self.evaluate(node.expr)  # 递归求值内部表达式
-        
+            return self.evaluate(node.expr)
+            
         if isinstance(node, VariableNode):
             if node.name not in self.variables:
-                raise Exception(f"未定义的变量: {node.name}")
-            value = self.variables[node.name]
-            if isinstance(value, CodeBlock):
-                return value.execute()
-            return value
+                raise InterpreterError(f"未定义的变量: {node.name}", node)
+            return self.variables[node.name]
             
         if isinstance(node, BinOpNode):
             left = self.evaluate(node.left)
@@ -221,53 +319,47 @@ class Interpreter:
                 
         if isinstance(node, CallNode):
             # 检查是否是内置函数
-            if node.name in self.builtin_functions:
-                # 计算所有参数的值
+            if isinstance(node.name, str) and node.name in self.builtin_functions:
                 args = [self.evaluate(arg) for arg in node.args]
                 return self.builtin_functions[node.name](args)
             
-            # 检查是否是用户定义的函数
-            if node.name not in self.functions:
-                raise InterpreterError(f"未定义的函数: {node.name}", node, node.token)
+            # 处理方法调用
+            if isinstance(node.name, DotAccessNode):
+                obj = self.evaluate(VariableNode(node.name.object_name))
+                if isinstance(obj, BCCInstance):
+                    method = obj.get_method(node.name.member_name)
+                    args = [self.evaluate(arg) for arg in node.args]
+                    # 将实例作为第一个参数（self）传入
+                    return self.execute_function(method, [obj] + args)
+                raise InterpreterError(f"无法在非对象类型上调用方法", node)
             
-            # 执行用户定义的函数
-            func = self.functions[node.name]
-            if len(node.args) != len(func.params):
-                raise InterpreterError(f"函数 {node.name} 需要 {len(func.params)} 个参数，但提供了 {len(node.args)} 个", node)
+            # 处理普通函数调用
+            if isinstance(node.name, str):
+                if node.name not in self.functions:
+                    raise InterpreterError(f"未定义的函数: {node.name}", node, node.token)
+                
+                func = self.functions[node.name]
+                args = [self.evaluate(arg) for arg in node.args]
+                return self.execute_function(func, args)
             
-            # 保存当前变量环境
-            old_vars = self.variables.copy()
+            raise InterpreterError(f"无效的函数调用", node)
             
-            # 设置参数
-            for param, arg in zip(func.params, node.args):
-                if isinstance(param, CodeBlockParamNode):
-                    # 如果是代码块参数，创建 CodeBlock 对象
-                    if isinstance(arg, CodeBlockNode):
-                        self.variables[param.name] = CodeBlock(arg.statements, self)
-                    else:
-                        raise InterpreterError(f"参数 {param.name} 需要代码块", node)
-                else:
-                    self.variables[param.name] = self.evaluate(arg)
+        if isinstance(node, DotAccessNode):
+            # 处理对象属性访问
+            obj = self.evaluate(VariableNode(node.object_name))
+            if isinstance(obj, BCCInstance):
+                return obj.get_attribute(node.member_name)
+            raise InterpreterError(f"无法访问非对象类型的属性", node)
             
-            # 执行函数体
-            result = None
-            try:
-                for stmt in func.body:
-                    result = self.interpret(stmt)
-            except ReturnException as e:
-                result = e.value
-            
-            # 恢复变量环境
-            self.variables = old_vars
-            
-            return result
-            
-        raise Exception(f"无法计算表达式: {node}")
+        raise Exception(f"无法计算表��式: {node}")
 
     def interpret(self, node):
         """解释执行AST节点"""
         if node is None:
             return None
+            
+        if self.debug:
+            print(f"DEBUG: 正在解释节点: {type(node)}")
             
         if isinstance(node, ImportNode):
             self.import_module(node.module_name)
@@ -275,6 +367,8 @@ class Interpreter:
             
         if isinstance(node, list):
             # 处理语句列表
+            if self.debug:
+                print("DEBUG: 处理语句列表")
             for statement in node:
                 self.interpret(statement)
             return None
@@ -295,9 +389,23 @@ class Interpreter:
             
         # 处理赋值节点
         if isinstance(node, AssignNode):
-            value = self.interpret(node.value)
-            self.variables[node.name] = value
-            return value
+            if self.debug:
+                print(f"DEBUG: 处理赋值: {node.name} = {node.value}")
+            if isinstance(node.name, str):
+                # 普通变量赋值
+                value = self.interpret(node.value)
+                self.variables[node.name] = value
+                return value
+            elif isinstance(node.name, DotAccessNode):
+                # 对象属性赋值
+                obj = self.interpret(VariableNode(node.name.object_name))
+                if isinstance(obj, BCCInstance):
+                    value = self.interpret(node.value)
+                    obj.set_attribute(node.name.member_name, value)
+                    return value
+                raise InterpreterError(f"无法给非对象类型赋值属性", node)
+            else:
+                raise InterpreterError(f"无效的赋值目标", node)
             
         # 处理二元运算节点
         if isinstance(node, BinOpNode):
@@ -305,6 +413,8 @@ class Interpreter:
             
         # 处理打印节点
         if isinstance(node, PrintNode):
+            if self.debug:
+                print("DEBUG: 执行打印操作")
             result = self.interpret(node.expr)
             print(result)
             return None
@@ -343,52 +453,50 @@ class Interpreter:
 
         if isinstance(node, FunctionNode):
             # 存储函数定义
+            if self.debug:
+                print(f"DEBUG: 定义函数: {node.name}")
             self.functions[node.name] = node
             return None
             
         if isinstance(node, CallNode):
+            if self.debug:
+                print(f"DEBUG: 调用函数: {node.name}")
             # 检查是否是内置函数
-            if node.name in self.builtin_functions:
-                args = [self.evaluate(arg) for arg in node.args]
+            if isinstance(node.name, str) and node.name in self.builtin_functions:
+                args = [self.interpret(arg) for arg in node.args]
                 return self.builtin_functions[node.name](args)
             
-            # 检查是否是用户定义的函数
-            if node.name not in self.functions:
-                raise InterpreterError(f"未定义的函数: {node.name}", node, node.token)
+            # 处理方法调用
+            if isinstance(node.name, DotAccessNode):
+                obj = self.interpret(VariableNode(node.name.object_name))
+                if isinstance(obj, BCCInstance):
+                    method = obj.get_method(node.name.member_name)
+                    args = [self.interpret(arg) for arg in node.args]
+                    # 将实例作为第一个参数（self）传入
+                    return self.execute_function(method, [obj] + args)
+                raise InterpreterError(f"无法在非对象类型上调用方法", node)
             
-            func = self.functions[node.name]
-            if len(node.args) != len(func.params):
-                raise InterpreterError(f"函数 {node.name} 需要 {len(func.params)} 个参数，但提供了 {len(node.args)} 个", node)
+            # 处理普通函数调用或类实例化
+            if isinstance(node.name, str):
+                # 检查是否是类名
+                if node.name in self.variables and isinstance(self.variables[node.name], BCCClass):
+                    # 创建类实例
+                    bcc_class = self.variables[node.name]
+                    instance = BCCInstance(bcc_class)
+                    return instance
+                
+                # 检查是否是函数调用
+                if node.name not in self.functions:
+                    raise InterpreterError(f"未定义的函数或类: {node.name}", node, node.token)
+                
+                func = self.functions[node.name]
+                args = [self.interpret(arg) for arg in node.args]
+                return self.execute_function(func, args)
             
-            # 保存当前变量环境
-            old_vars = self.variables.copy()
-            
-            # 设置参数
-            for param, arg in zip(func.params, node.args):
-                if isinstance(param, CodeBlockParamNode):
-                    # 如果是代码块参数，创建 CodeBlock 对象
-                    if isinstance(arg, CodeBlockNode):
-                        self.variables[param.name] = CodeBlock(arg.statements, self)
-                    else:
-                        raise InterpreterError(f"参数 {param.name} 需要代码块", node)
-                else:
-                    self.variables[param.name] = self.evaluate(arg)
-            
-            # 执行函数体
-            result = None
-            try:
-                for stmt in func.body:
-                    result = self.interpret(stmt)
-            except ReturnException as e:
-                result = e.value
-            finally:
-                # 恢复变量环境
-                self.variables = old_vars
-            
-            return result
+            raise InterpreterError(f"无效的函数调用", node)
 
         if isinstance(node, ReturnNode):
-            raise ReturnException(self.evaluate(node.value))
+            raise ReturnException(self.interpret(node.value))
 
         if isinstance(node, ArrayAccessNode):
             array = self.variables.get(node.array)
@@ -396,32 +504,15 @@ class Interpreter:
                 raise InterpreterError(f"未定义的变量: {node.array}", node)
             if not hasattr(array, 'lines'):
                 raise InterpreterError(f"变量 {node.array} 不是数组", node)
-            index = self.evaluate(node.index)
+            index = self.interpret(node.index)
             if not isinstance(index, int):
                 raise InterpreterError("数组索引必须是整数", node)
             if index < 0 or index >= len(array.lines):
                 raise InterpreterError("数组索引越界", node)
             return array.lines[index]
 
-        if isinstance(node, DotAccessNode):
-            # 处理特殊的 BCC.Codeblock 类型
-            if node.object_name == "BCC" and node.member_name == "Codeblock":
-                return "BCC.Codeblock"  # 返回类型标识符
-            
-            # 处理代码块的 lines 属性
-            obj = self.variables.get(node.object_name)
-            if obj is None:
-                raise InterpreterError(f"未定义的变量: {node.object_name}", node)
-            
-            if isinstance(obj, CodeBlock):
-                if node.member_name == "lines":
-                    return obj.lines
-                raise InterpreterError(f"代码块对象没有属性: {node.member_name}", node)
-            
-            raise InterpreterError(f"未知的点号访问: {node.object_name}.{node.member_name}", node)
-
         if isinstance(node, NsReturnNode):
-            value = self.evaluate(node.value)
+            value = self.interpret(node.value)
             if isinstance(value, CodeBlock):
                 value.execute()
             return None  # 不中断执行
@@ -432,8 +523,61 @@ class Interpreter:
                     self.interpret(stmt)
             return None
 
+        if isinstance(node, ClassNode):
+            if self.debug:
+                print(f"DEBUG: 定义类: {node.name}")
+            # 处理方法
+            methods = {}
+            for method in node.methods:
+                methods[method.name] = method
+            
+            # 处理属性的初始值
+            attributes = {}
+            for name, value_node in node.attributes.items():
+                attributes[name] = self.interpret(value_node)
+            
+            # 创建类对象
+            bcc_class = BCCClass(node.name, methods, attributes)
+            self.variables[node.name] = bcc_class
+            return bcc_class
+
+        raise InterpreterError(f"未知的节点类型: {type(node)}", node)
+
     def import_module(self, module_name):
         """导入模块"""
         module = self.module_manager.load_module(module_name)
         # 将模块的函数添加到当前作用域
         self.functions.update(module.functions)
+
+    def execute_function(self, func, args):
+        """执行函数调用"""
+        if len(args) != len(func.params):
+            raise InterpreterError(f"函数 {func.name} 需要 {len(func.params)} 个参数，但提供了 {len(args)} 个")
+        
+        # 保存当前变量环境
+        old_vars = self.variables.copy()
+        
+        try:
+            # 设置参数
+            for param, arg in zip(func.params, args):
+                if isinstance(param, CodeBlockParamNode):
+                    # 如果是代码块参数，创建 CodeBlock 对象
+                    if isinstance(arg, CodeBlockNode):
+                        self.variables[param.name] = CodeBlock(arg.statements, self)
+                    else:
+                        raise InterpreterError(f"参数 {param.name} 需要代码块")
+                else:
+                    self.variables[param.name] = arg
+            
+            # 执行函数体
+            result = None
+            for stmt in func.body:
+                result = self.interpret(stmt)
+            return result
+            
+        except ReturnException as e:
+            return e.value
+            
+        finally:
+            # 恢复变量环境
+            self.variables = old_vars

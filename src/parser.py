@@ -153,6 +153,51 @@ class Parser:
             self.advance()
             return None
         
+        # 处理类定义
+        if token.type == TokenType.CLASS:
+            self.advance()  # 跳过 class 关键字
+            
+            if not self.current_token or self.current_token.type != TokenType.IDENTIFIER:
+                raise ParserError("类定义后需要类名", token)
+            
+            class_name = self.current_token.value
+            self.advance()  # 跳过类名
+            
+            if not self.current_token or self.current_token.type != TokenType.LBRACE:
+                raise ParserError("类定义需要用 '{' 开始", self.current_token)
+            
+            self.advance()  # 跳过 {
+            
+            methods = []
+            attributes = {}
+            
+            # 解析类体
+            while self.current_token and self.current_token.type != TokenType.RBRACE:
+                if self.current_token.type == TokenType.DEF:
+                    # 解析方法定义
+                    method = self.function_definition()
+                    methods.append(method)
+                elif self.current_token.type == TokenType.IDENTIFIER:
+                    # 解析类属性
+                    name = self.current_token.value
+                    self.advance()  # 跳过属性名
+                    
+                    if not self.current_token or self.current_token.type != TokenType.EQUALS:
+                        raise ParserError("类属性定义需要赋值", self.current_token)
+                    
+                    self.advance()  # 跳过等号
+                    value = self.expr()
+                    attributes[name] = value
+                else:
+                    raise ParserError("类定义中只能包含方法或属性定义", self.current_token)
+            
+            if not self.current_token or self.current_token.type != TokenType.RBRACE:
+                raise ParserError("类定义未正确结束，缺少 '}'", self.current_token)
+            
+            self.advance()  # 跳过 }
+            
+            return ClassNode(class_name, methods, attributes)
+        
         # 处理 while 语句
         if token.type == TokenType.WHILE:
             self.advance()  # 跳过 while
@@ -203,7 +248,7 @@ class Parser:
                     statements.append(stmt)
             
             if not self.current_token or self.current_token.type != TokenType.RBRACE:
-                raise ParserError("代码块未正确结束，缺少 '}'", self.current_token)
+                raise ParserError("代码块未正确结束，��少 '}'", self.current_token)
             
             self.advance()  # 跳过 }
             return CodeBlockNode(statements)
@@ -238,7 +283,7 @@ class Parser:
             self.advance()  # 跳过右括号
             return PrintNode(expr)
         
-        # 处理 printnln 语句
+        # ��理 printnln 语句
         if token.type == TokenType.PRINTNLN:
             self.advance()  # 跳过 printnln
             if not self.current_token or self.current_token.type != TokenType.LPAREN:
@@ -287,13 +332,45 @@ class Parser:
                 self.advance()  # 跳过 }
                 return CallNode(name, [CodeBlockNode(statements)], name_token)
             
-            # 处理点号访问（如 BCC.Codeblock）
+            # 处理点号访问（如 self.name）
             if self.current_token and self.current_token.type == TokenType.DOT:
                 self.advance()  # 跳过点号
                 if not self.current_token or self.current_token.type != TokenType.IDENTIFIER:
                     raise ParserError("点号后需要标识符", self.current_token)
                 member = self.current_token.value
-                self.advance()
+                member_token = self.current_token  # 保存成员token
+                self.advance()  # 跳过成员名
+                
+                # 处理方法调用
+                if self.current_token and self.current_token.type == TokenType.LPAREN:
+                    self.advance()  # 跳过左括号
+                    args = []
+                    
+                    # 如果不是右括号，说明有参数
+                    if self.current_token and self.current_token.type != TokenType.RPAREN:
+                        # 解析第一个参数
+                        args.append(self.expr())
+                        
+                        # 解析剩余的参数
+                        while self.current_token and self.current_token.type == TokenType.COMMA:
+                            self.advance()  # 跳过逗号
+                            if not self.current_token:
+                                raise ParserError("意外的文件结束", None)
+                            args.append(self.expr())
+                    
+                    if not self.current_token or self.current_token.type != TokenType.RPAREN:
+                        raise ParserError("缺少右括号", self.current_token)
+                    self.advance()  # 跳过右括号
+                    
+                    # 创建方法调用节点
+                    return CallNode(DotAccessNode(name, member), args, member_token)
+                
+                # 检查是否是赋值语句
+                if self.current_token and self.current_token.type == TokenType.EQUALS:
+                    self.advance()  # 跳过等号
+                    value = self.expr()
+                    return AssignNode(DotAccessNode(name, member), value)
+                
                 return DotAccessNode(name, member)
             
             # 处理数组访问（如 lines[i]）
@@ -320,38 +397,19 @@ class Parser:
                 # 如果不是右括号，说明有参数
                 if self.current_token and self.current_token.type != TokenType.RPAREN:
                     # 解析第一个参数
-                    args.append(self.comparison())  # 使用 comparison 而不是 expr
+                    args.append(self.expr())
                     
                     # 解析剩余的参数
                     while self.current_token and self.current_token.type == TokenType.COMMA:
                         self.advance()  # 跳过逗号
                         if not self.current_token:
                             raise ParserError("意外的文件结束", None)
-                        args.append(self.comparison())  # 使用 comparison 而不是 expr
+                        args.append(self.expr())
                 
                 # 检查右括号
                 if not self.current_token or self.current_token.type != TokenType.RPAREN:
                     raise ParserError("缺少右括号", self.current_token)
                 self.advance()  # 跳过右括号
-                
-                # 检查是否有代码块
-                if self.current_token and self.current_token.type == TokenType.LBRACE:
-                    statements = []
-                    self.advance()  # 跳过 {
-                    
-                    # 收集代码块中的所有语句
-                    while self.current_token and self.current_token.type != TokenType.RBRACE:
-                        stmt = self.statement()
-                        if stmt:  # 忽略None返回
-                            statements.append(stmt)
-                            
-                    # 检查代码块是否正确结束
-                    if not self.current_token or self.current_token.type != TokenType.RBRACE:
-                        raise ParserError("代码块未正确结束，缺少 '}'", self.current_token)
-                    self.advance()  # 跳过 }
-                    
-                    # 将代码块作为最后一个参数添加
-                    args.append(CodeBlockNode(statements))
                 
                 return CallNode(name, args, name_token)
             
@@ -401,7 +459,7 @@ class Parser:
             
         # 处理表达式
         if token.type == TokenType.EXPR:
-            self.advance()  # ��过 expr
+            self.advance()  # 跳过 expr
             if not self.current_token or self.current_token.type != TokenType.LPAREN:
                 raise ParserError("expr 后需要括号", token)
             self.advance()  # 跳过左括号
@@ -427,13 +485,20 @@ class Parser:
             name_token = token  # 保存标识符token
             self.advance()
             
-            # 处理点号访问（如 BCC.Codeblock）
+            # 处理点号访问（如 self.name）
             if self.current_token and self.current_token.type == TokenType.DOT:
                 self.advance()  # 跳过点号
                 if not self.current_token or self.current_token.type != TokenType.IDENTIFIER:
                     raise ParserError("点号后需要标识符", self.current_token)
                 member = self.current_token.value
-                self.advance()
+                self.advance()  # 跳过成员名
+                
+                # 检查是否是赋值语句
+                if self.current_token and self.current_token.type == TokenType.EQUALS:
+                    self.advance()  # 跳过等号
+                    value = self.expr()
+                    return AssignNode(DotAccessNode(name, member), value)
+                
                 return DotAccessNode(name, member)
             
             # 处理数组访问（如 lines[i]）
@@ -445,7 +510,7 @@ class Parser:
                 self.advance()  # 跳过 ]
                 return ArrayAccessNode(name, index, name_token)
             
-            # 如果后面跟着左括号，说明是函数调用
+            # 如果后面跟着左括号，说明是���数调用
             if self.current_token and self.current_token.type == TokenType.LPAREN:
                 self.advance()  # 跳过左括号
                 args = []
@@ -546,7 +611,7 @@ class Parser:
         self.advance()  # 跳过 for
         
         if not self.current_token or self.current_token.type != TokenType.LPAREN:
-            raise ParserError("for 语句需要括号", self.current_token)
+            raise ParserError("for 语句���要括号", self.current_token)
         self.advance()  # 跳过左括号
         
         # 解析初始化语句
@@ -676,6 +741,46 @@ class Parser:
         
         return FunctionNode(func_type, func_name, params, body)
 
+    def parse_class(self):
+        """解析类定义"""
+        self.advance()  # 跳过 class 关键字
+        
+        if not self.current_token or self.current_token.type != TokenType.IDENTIFIER:
+            raise ParserError("类定义后需要类名", self.current_token)
+        
+        class_name = self.current_token.value
+        self.advance()  # 跳过类名
+        
+        if not self.current_token or self.current_token.type != TokenType.COLON:
+            raise ParserError("类定义后需要冒号", self.current_token)
+        
+        self.advance()  # 跳过冒号
+        
+        methods = []
+        attributes = {}
+        
+        # 解析类体
+        while self.current_token and self.current_token.type != TokenType.DEDENT:
+            if self.current_token.type == TokenType.DEF:
+                # 解析方法定义
+                method = self.parse_function()
+                methods.append(method)
+            elif self.current_token.type == TokenType.IDENTIFIER:
+                # 解析类属性
+                name = self.current_token.value
+                self.advance()  # 跳过属性名
+                
+                if not self.current_token or self.current_token.type != TokenType.EQUALS:
+                    raise ParserError("类属性定义需要赋值", self.current_token)
+                
+                self.advance()  # 跳过等号
+                value = self.expr()
+                attributes[name] = value
+            else:
+                raise ParserError("类定义中只能包含方法或属性定义", self.current_token)
+        
+        return ClassNode(class_name, methods, attributes)
+
 class FunctionNode(ASTNode):
     """函数定义节点"""
     def __init__(self, type, name, params, body):
@@ -752,13 +857,13 @@ class DotAccessNode(ASTNode):
     """点号访问节点，用于处理如 BCC.Codeblock 这样的表达式"""
     def __init__(self, object_name, member_name):
         self.object_name = object_name  # 对象名（如 BCC）
-        self.member_name = member_name  # 成员名（如 Codeblock）
+        self.member_name = member_name  # 成员名（�� Codeblock）
 
     def __str__(self):
         return f"DotAccess({self.object_name}.{self.member_name})"
 
 class NsReturnNode(ASTNode):
-    """不停止的返回语句节点"""
+    """不停的返回语句节点"""
     def __init__(self, value):
         self.value = value
         
@@ -772,3 +877,13 @@ class ExprNode(ASTNode):
         
     def __str__(self):
         return f"Expr({self.expr})"
+
+class ClassNode(ASTNode):
+    """类定义节点"""
+    def __init__(self, name, methods, attributes=None):
+        self.name = name            # 类名
+        self.methods = methods      # 方法列表
+        self.attributes = attributes or {}  # 类属性字典
+
+    def __str__(self):
+        return f"Class({self.name}, methods={len(self.methods)})"
