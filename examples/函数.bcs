@@ -1,0 +1,10 @@
+def public add(x, y) {
+    return x + y
+}
+
+def private helper() {
+    print("This is a helper function")
+}
+
+result = add(5, 3)
+print(result)

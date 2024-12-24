@@ -1,0 +1,22 @@
+// 测试基础模块功能
+import "basicDef.bcm"
+
+result = max(5, 3)
+print(result)  // 应该输出 5
+
+result = min(10, 7)
+print(result)  // 应该输出 7
+
+str = concat("Hello, ", "World!")
+print(str)  // 应该输出 Hello, World!
+
+// 测试代码块功能
+forEach {
+    print("测试代码块")
+    print("第二行")
+}
+
+// 也可以这样写
+forEach {
+    print("测试代码块")
+} 

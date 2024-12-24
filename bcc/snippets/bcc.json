@@ -1,0 +1,52 @@
+{
+  "Print": {
+    "prefix": "print",
+    "body": [
+      "print($1)"
+    ],
+    "description": "Print with newline"
+  },
+  "Printnln": {
+    "prefix": "printnln",
+    "body": [
+      "printnln($1)"
+    ],
+    "description": "Print without newline"
+  },
+  "If statement": {
+    "prefix": "if",
+    "body": [
+      "if ${1:condition} {",
+      "    $0",
+      "}"
+    ],
+    "description": "If statement"
+  },
+  "For loop": {
+    "prefix": "for",
+    "body": [
+      "for ${1:i} = ${2:1}, ${1:i} <= ${3:5}, ${1:i} = ${1:i} + 1 {",
+      "    $0",
+      "}"
+    ],
+    "description": "For loop"
+  },
+  "Function definition": {
+    "prefix": "def",
+    "body": [
+      "def ${1|public,private|} ${2:functionName}(${3:params}) {",
+      "    $0",
+      "}"
+    ],
+    "description": "Function definition"
+  },
+  "Class definition": {
+    "prefix": "class",
+    "body": [
+      "class ${1|public,private|} ${2:className} {",
+      "    $0",
+      "}"
+    ],
+    "description": "Class definition"
+  }
+} 

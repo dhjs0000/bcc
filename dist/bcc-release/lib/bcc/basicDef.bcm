@@ -1,0 +1,18 @@
+def public max(a, b) {
+    if (a > b) {
+        return a
+    }
+    return b
+}
+def public min(a, b) {
+    if (a < b) {
+        return a
+    }
+    return b
+}
+def public concat(str1, str2) {
+    return str1 + str2
+}
+def public forEach(arr: BCC.Codeblock) {
+    return arr
+}

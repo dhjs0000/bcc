@@ -1,0 +1,6 @@
+{
+    "autoload": [
+        "basicDef.bcm"
+    ],
+    "libPath": "./lib/bcc"
+} 

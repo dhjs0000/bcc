@@ -1,0 +1,25 @@
+{
+    "name": "bcc-language",
+    "displayName": "BCC Language Support",
+    "description": "BCC programming language support",
+    "version": "0.0.1",
+    "engines": {
+        "vscode": "^1.60.0"
+    },
+    "categories": [
+        "Programming Languages"
+    ],
+    "contributes": {
+        "languages": [{
+            "id": "bcc",
+            "aliases": ["BCC", "bcc"],
+            "extensions": [".bcs", ".bcm"],
+            "configuration": "./language-configuration.json"
+        }],
+        "grammars": [{
+            "language": "bcc",
+            "scopeName": "source.bcc",
+            "path": "./syntaxes/bcc.tmLanguage.json"
+        }]
+    }
+} 
