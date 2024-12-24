@@ -1,7 +1,7 @@
 class Animal {
     name = ""
     age = 0
-    species = "unknown"
+    species = "未知"
     
     def public init(self, name, age, species) {
         self.name = name
@@ -10,19 +10,19 @@ class Animal {
     }
     
     def public make_sound(self) {
-        print("Some generic sound")
+        print("发出一些通用的声音")
     }
     
     def public describe(self) {
-        print("This is a " + self.species + " named " + self.name)
-        print("It is " + str(self.age) + " years old")
+        print("这是一只" + self.species + "，名字叫" + self.name)
+        print("它今年" + str(self.age) + "岁")
     }
 }
 
 class Dog {
     name = ""
     age = 0
-    breed = "unknown"
+    breed = "未知"
     
     def public init(self, name, age, breed) {
         self.name = name
@@ -31,38 +31,38 @@ class Dog {
     }
     
     def public bark(self) {
-        print("Woof! Woof!")
+        print("汪！汪！")
     }
     
     def public describe(self) {
-        print("This is a " + self.breed + " dog named " + self.name)
-        print("It is " + str(self.age) + " years old")
+        print("这是一只" + self.breed + "狗，名字叫" + self.name)
+        print("它今年" + str(self.age) + "岁")
     }
     
     def public birthday(self) {
         self.age = self.age + 1
-        print("Happy birthday, " + self.name + "!")
-        print("You are now " + str(self.age) + " years old")
+        print("生日快乐，" + self.name + "!")
+        print("你现在" + str(self.age) + "岁了")
     }
 }
 
 // 创建一些动物实例
 cat = Animal()
-cat.init("Whiskers", 3, "cat")
+cat.init("Whiskers", 3, "猫")
 cat.describe()
 cat.make_sound()
 
 print("")  // 空行
 
 dog = Dog()
-dog.init("Buddy", 2, "Golden Retriever")
+dog.init("Buddy", 2, "金毛猎犬")
 dog.describe()
 dog.bark()
-print("Current age: " + str(dog.age))
+print("当前年龄: " + str(dog.age))
 dog.birthday()
 
 print("")  // 空行
 
 // 直接打印实例
-print("Cat instance: " + str(cat))
-print("Dog instance: " + str(dog)) 
+print("猫实例: " + str(cat))
+print("狗实例: " + str(dog)) 

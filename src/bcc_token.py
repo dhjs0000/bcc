@@ -1,71 +1,71 @@
-from enum import Enum, auto
+from enum import Enum
 
 class TokenType(Enum):
     # 数据类型
-    NUMBER = auto()      # 数字
-    STRING = auto()      # 字符串
-    IDENTIFIER = auto()  # 标识符（变量名）
+    NUMBER = 1      # 数字
+    STRING = 2      # 字符串
+    IDENTIFIER = 3  # 标识符（变量名）
     
     # 运算符
-    PLUS = auto()       # +
-    MINUS = auto()      # -
-    MULTIPLY = auto()   # *
-    DIVIDE = auto()     # /
-    EQUALS = auto()     # =
+    PLUS = 4       # +
+    MINUS = 5      # -
+    MULTIPLY = 6   # *
+    DIVIDE = 7     # /
+    EQUALS = 8     # =
     
     # 比较运算符
-    EQ = auto()         # ==
-    LT = auto()         # <
-    GT = auto()         # >
-    LE = auto()         # <=
-    GE = auto()         # >=
+    EQ = 9         # ==
+    LT = 10        # <
+    GT = 11        # >
+    LE = 12        # <=
+    GE = 13        # >=
     
     # 括号和其他符号
-    LPAREN = auto()     # (
-    RPAREN = auto()     # )
-    COLON = auto()      # :
+    LPAREN = 14     # (
+    RPAREN = 15     # )
+    COLON = 16      # :
     
     # 关键字
-    PRINT = auto()      # print 关键字
-    PRINTNLN = auto()   # printnln 关键字（不换行打印）
-    IF = auto()         # if 关键字
-    FOR = auto()        # for 关键字
-    WHILE = auto()      # while 关键字
-    RETURN = auto()     # return 关键字
-    NSRETURN = auto()   # nsreturn 关键字（不停止的返回）
-    EXPR = auto()       # expr 关键字
+    PRINT = 17      # print 关键字
+    PRINTNLN = 18   # printnln 关键字（不换行打印）
+    IF = 19         # if 关键字
+    FOR = 20        # for 关键字
+    WHILE = 21      # while 关键字
+    RETURN = 22     # return 关键字
+    NSRETURN = 23   # nsreturn 关键字（不停止的返回）
+    EXPR = 24       # expr 关键字
     
     # 特殊标记
-    EOF = auto()        # 文件结束标记
-    INDENT = auto()     # 缩进
-    DEDENT = auto()     # 取消缩进
-    LBRACE = '{'    # 左大括号
-    RBRACE = '}'    # 右大括号
-    COMMA = auto()      # ,
-    SEMICOLON = auto()  # 分号 ;
+    EOF = 25        # 文件结束标记
+    INDENT = 26     # 缩进
+    DEDENT = 27     # 取消缩进
+    LBRACE = 28     # 左大括号
+    RBRACE = 29     # 右大括号
+    COMMA = 30      # ,
+    SEMICOLON = 31  # 分号 ;
     
     # 函数相关
-    DEF = auto()        # def 关键字
-    PUBLIC = auto()     # public 关键字
-    PRIVATE = auto()    # private 关键字
+    DEF = 32        # def 关键字
+    PUBLIC = 33     # public 关键字
+    PRIVATE = 34    # private 关键字
     
     # 类相关
-    CLASS = auto()      # class 关键字
+    CLASS = 35      # class 关键字
     
     # 代码块相关
-    CODEBLOCK = auto()   # BCC.Codeblock 类型
-    DOT = auto()         # . 符号，用于 BCC.Codeblock.lines
+    CODEBLOCK = 36   # BCC.Codeblock 类型
+    DOT = 37         # . 符号，用于 BCC.Codeblock.lines
     
     # 模块相关
-    IMPORT = auto()      # import 关键字
-    FROM = auto()        # from 关键字
-    AS = auto()         # as 关键字
-    BCM = auto()        # .bcm 模块文件
-    BCS = auto()        # .bcs 源文件
+    IMPORT = 38      # import 关键字
+    FROM = 39        # from 关键字
+    AS = 40          # as 关键字
+    BCM = 41         # .bcm 模块文件
+    BCS = 42         # .bcs 源文件
     
     # 数组相关
-    LBRACKET = auto()    # [
-    RBRACKET = auto()    # ]
+    LBRACKET = 43    # [
+    RBRACKET = 44    # ]
 
 class Token:
     def __init__(self, type, value, line=0, column=0):
