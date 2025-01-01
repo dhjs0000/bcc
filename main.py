@@ -307,13 +307,13 @@ def format_error(filename, line, message, token=None, source_lines=None):
     result += f"\n{Colors.YELLOW}可能的解决方案:{Colors.END}\n"
     if "未定义的函数" in message:
         result += "1. 检查函数名是否拼写正确\n"
-        result += "2. 确保已导入包含该函的模块\n"
+        result += "2. 确保已导入包该函的模块\n"
         result += "3. 检查函数名的大小写是否正确\n"
     elif "缺少右括号" in message:
         result += "1. 添加缺少的右括号\n"
         result += "2. 检查括号是否匹配\n"
     elif "未定义的变量" in message:
-        result += "1. 确保���使用变量前已经声明并赋值\n"
+        result += "1. 确保使用变量前已经声明并赋值\n"
         result += "2. 检查变量名的拼写是否正确\n"
         result += "3. 检查变量名的大小写是否正确\n"
     elif "无效的表达式" in message:
@@ -396,6 +396,20 @@ class REPL:
             self.history.append(command + '\n')
             self.save_history()
 
+    def handle_command(self, command):
+        """处理特殊命令"""
+        command = command.strip().lower()
+        if command == 'exit':
+            print(f"{Colors.GREEN}再见！{Colors.END}")
+            return True, True  # (退出, 是特殊命令)
+        elif command == 'clear':
+            os.system('cls' if os.name == 'nt' else 'clear')
+            return False, True  # (不退出, 是特殊命令)
+        elif command in ('help', 'bcchelp'):
+            show_bcc_help()
+            return False, True  # (不退出, 是特殊命令)
+        return False, False  # (不退出, 不是特殊命令)
+
     def needs_more_input(self, text):
         """判断是否需要更多输入"""
         # 去除注释后的文本
@@ -432,8 +446,12 @@ class REPL:
         return False
 
     def run(self):
-        print(f"{Colors.GREEN}BCC REPL{Colors.END} (输入 'exit' 退出, 'bcchelp' 显示帮助, 'clear' 清屏)")
-        print("支持多行输入，输入空行结束，分号可以代替换行")
+        print(f"{Colors.GREEN}BCC 语言解释器{Colors.END}")
+        print("命令:")
+        print("  help    - 显示帮助信息")
+        print("  clear   - 清屏")
+        print("  exit    - 退出")
+        print("\n支持多行输入，输入空行结束，分号可以代替换行\n")
         
         while True:
             try:
@@ -445,23 +463,17 @@ class REPL:
                     if first_line:
                         line = input(config.settings["theme"]["prompt"])
                         first_line = False
+                        
+                        # 处理特殊命令
+                        should_exit, is_command = self.handle_command(line)
+                        if is_command:
+                            if should_exit:
+                                return
+                            first_line = True
+                            continue
+                            
                     else:
                         line = input(config.settings["theme"]["continuation_prompt"])
-                    
-                    # 处理特殊命令
-                    if first_line and line.strip() == 'exit':
-                        print(f"{Colors.GREEN}再见！{Colors.END}")
-                        return
-                    
-                    if first_line and line.strip() == 'clear':
-                        os.system('cls' if os.name == 'nt' else 'clear')
-                        first_line = True
-                        continue
-                    
-                    if first_line and line.strip() == 'bcchelp':
-                        show_bcc_help()
-                        first_line = True
-                        continue
                     
                     lines.append(line)
                     
@@ -474,7 +486,7 @@ class REPL:
                     first_line = True
                     continue
                     
-                # 处理分号：将分号替为换行符
+                # 处理分号：将分号替换为换行符
                 text = '\n'.join(lines)
                 text = text.replace(';', '\n')
                 
@@ -530,19 +542,9 @@ def main():
         run_file(args.file, args.show_tokens, args.show_perror, args.debug)
     else:
         # REPL模式
-        print("BCC语��解释器 [按 Ctrl+C 退出]")
-        interpreter = Interpreter(debug=args.debug)  # 传递调试标志
-        while True:
-            try:
-                source = input(config.settings["theme"]["prompt"])
-                if source.strip() == "":
-                    continue
-                run(source, interpreter, args.show_tokens, args.show_perror)
-            except KeyboardInterrupt:
-                print("\n再见！")
-                break
-            except EOFError:
-                break
+        repl = REPL()
+        repl.interpreter = Interpreter(debug=args.debug)  # 使用带调试标志的解释器
+        repl.run()
 
 if __name__ == '__main__':
     main() 
